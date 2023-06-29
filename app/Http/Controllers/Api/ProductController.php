@@ -8,30 +8,38 @@ use App\Product;
 
 class ProductController extends Controller
 {
-    public function show() {
-        return [
-            "message" => "Get all products successful.",
-            "data" => Product::latest(),
-        ];
+    public function index() {
+        try {
+            return response()->json([
+                "message" => "Get all products successful.",
+                "data" => Product::latest(),
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                $e->getMessage()
+            ]);
+        }
     }
     public function store(Request $request) {
         try {
-            $request->validate([
+            $validated = $request->validate([
                 'name' => 'required|max:255',
                 'category' => 'required',
                 'description' => 'required'
             ]);
     
-            if ($request->validated()) {
+            if ($validated) {
                 $product = Product::create($request->all());
     
-                return [
+                return response()->json([
                     "message" => "Added new product.",
                     "data" => $product,
-                ];
+                ]);
             }
         } catch (\Exception $e) {
-            return $e->getMessage();
+            return response()->json([
+                $e->getMessage()
+            ]);
         }
     }
     public function update(
@@ -39,31 +47,37 @@ class ProductController extends Controller
         Product $product
     ) {
         try {
-            $request->validate([
+            $validated = $request->validate([
                 'name' => 'required|max:255',
                 'category' => 'required',
                 'description' => 'required'
             ]);
     
-            if ($request->validated()) {
+            if ($validated) {
                 $product->update($request->all());
     
-                return [
+                return response()->json([
                     'message' => 'Update product successful.',
                     'data' => $product,
-                ];
+                ]);
             }
         } catch (\Exception $e) {
-            return $e->getMessage();
+            return response()->json([
+                $e->getMessage()
+            ]);
         }
     }
     public function destroy(Product $product) {
         try {
-            if ($product->destroy()) {
-                return ['message' => 'Delete product successful.'];
+            if ($product->delete()) {
+                return response()->json([
+                    'message' => 'Delete product successful.'
+                ]);
             }
         } catch (\Exception $e) {
-            return $e->getMessage();
+            return response()->json([
+                $e->getMessage()
+            ]);
         }
     }
 }
